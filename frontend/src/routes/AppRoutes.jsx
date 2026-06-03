@@ -4,9 +4,10 @@ import ProtectedRoute from "../components/ProtectedRoute"
 import Dashboard from "../pages/Dashboard"
 import Login from "../pages/Login"
 import Register from "../pages/Register"
+import ForgotPassword from "../pages/ForgotPassword"
+import ResetPassword from "../pages/ResetPassword"
 import Applications from "../pages/Applications"
 import Analytics from "../pages/Analytics"
-// import AddJob from "../pages/AddJob"
 import Profile from "../pages/Profile"
 
 function AppRoutes() {
@@ -15,6 +16,8 @@ function AppRoutes() {
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* Protected routes with layout */}
       <Route element={

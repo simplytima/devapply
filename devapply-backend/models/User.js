@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+    resetPasswordToken: {
+    type: String,
+    default: '',
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null,
+  },
 });
 
 // NO pre-save middleware here - we'll hash in the route instead
