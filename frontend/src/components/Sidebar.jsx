@@ -43,10 +43,15 @@ function Sidebar() {
       
       {/* Logo */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-violet-500">
-          DevApply
-        </h1>
-        <p className="text-slate-400 text-sm mt-1">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">D</span>
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-500 to-purple-500 bg-clip-text text-transparent">
+            DevApply
+          </h1>
+        </div>
+        <p className="text-slate-400 text-sm mt-2">
           Job Tracker Dashboard
         </p>
       </div>

@@ -41,15 +41,6 @@ const Login = () => {
             <p className="text-slate-400 mt-2">Track your job applications</p>
           </div>
 
-          {/* Demo Credentials Alert */}
-          <div className="mb-6 p-3 bg-violet-500/10 border border-violet-500/20 rounded-lg">
-            <p className="text-xs text-violet-300 text-center">
-              Demo Credentials:<br />
-              Email: admin@devapply.com<br />
-              Password: password123
-            </p>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
