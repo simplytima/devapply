@@ -3,6 +3,20 @@ import { useApplications } from '../context/ApplicationContext';
 import { User, Mail, Calendar, Briefcase, Award, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
+// Helper function to capitalize words
+const capitalizeWords = (str) => {
+  if (!str) return '';
+  return str.split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ');
+};
+
+// Helper function to capitalize first letter only
+const capitalizeFirstLetter = (str) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 const Profile = () => {
   const { user, logout } = useAuth();
   const { applications, getStats } = useApplications();
@@ -10,21 +24,18 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(user?.name || '');
 
-  // Calculate member since (based on first application or registration)
   const memberSince = applications.length > 0 
     ? new Date(Math.min(...applications.map(a => new Date(a.date)))).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const handleUpdateProfile = () => {
-    // In a real app, this would call an API
     const updatedUser = { ...user, name };
     localStorage.setItem('user', JSON.stringify(updatedUser));
-    window.location.reload(); // Simple refresh to update UI
+    window.location.reload();
   };
 
   return (
     <div className="text-white p-6 max-w-5xl mx-auto">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Profile</h1>
         <p className="text-slate-400 mt-1">Manage your account settings</p>
@@ -35,7 +46,6 @@ const Profile = () => {
         <div className="lg:col-span-1">
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6 sticky top-6">
             <div className="text-center">
-              {/* Avatar */}
               <div className="relative inline-block">
                 <img 
                   src={user?.avatar} 
@@ -45,7 +55,6 @@ const Profile = () => {
                 <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 rounded-full border-2 border-[#0f172a]"></div>
               </div>
               
-              {/* User Info */}
               {isEditing ? (
                 <div className="mt-4">
                   <input
@@ -74,7 +83,10 @@ const Profile = () => {
                 </div>
               ) : (
                 <>
-                  <h2 className="text-xl font-semibold mt-4">{user?.name}</h2>
+                  {/* Capitalized name here */}
+                  <h2 className="text-xl font-semibold mt-4">
+                    {capitalizeWords(user?.name || '')}
+                  </h2>
                   <p className="text-slate-400 text-sm">{user?.email}</p>
                   <button
                     onClick={() => setIsEditing(true)}
@@ -86,7 +98,6 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Account Info */}
             <div className="mt-6 pt-6 border-t border-slate-800 space-y-3">
               <div className="flex items-center gap-3 text-sm">
                 <Mail size={16} className="text-slate-400" />
@@ -98,7 +109,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Logout Button */}
             <button
               onClick={logout}
               className="w-full mt-6 px-4 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors border border-red-500/20"
@@ -110,7 +120,6 @@ const Profile = () => {
 
         {/* Stats & Activity */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Stats Overview */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6">
             <h3 className="text-lg font-semibold mb-4">Your Activity</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -139,32 +148,35 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Recent Activity Timeline */}
+          {/* Recent Activity - Fixed height with scroll */}
           <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6">
             <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
             {applications.length === 0 ? (
               <p className="text-center text-slate-400 py-8">No applications yet. Start tracking!</p>
             ) : (
-              <div className="space-y-4">
-                {applications.slice(0, 5).map((app) => (
-                  <div key={app.id} className="flex items-center justify-between p-3 bg-[#020817] rounded-xl">
-                    <div>
-                      <p className="font-medium">{app.position}</p>
-                      <p className="text-sm text-slate-400">{app.company}</p>
+              // Fixed height container - shows exactly 3 items, scroll for more
+              <div className="max-h-64 overflow-y-auto pr-2 scrollbar-thin">
+                <div className="space-y-3">
+                  {applications.slice(0, 10).map((app) => (
+                    <div key={app._id} className="flex items-center justify-between p-3 bg-[#020817] rounded-xl">
+                      <div>
+                        <p className="font-medium">{capitalizeWords(app.position)}</p>
+                        <p className="text-sm text-slate-400">{capitalizeWords(app.company)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-400">{app.date}</p>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          app.status === 'accepted' ? 'bg-emerald-500/20 text-emerald-300' :
+                          app.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
+                          app.status === 'interview' ? 'bg-purple-500/20 text-purple-300' :
+                          'bg-blue-500/20 text-blue-300'
+                        }`}>
+                          {capitalizeFirstLetter(app.status)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm">{app.date}</p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        app.status === 'accepted' ? 'bg-emerald-500/20 text-emerald-300' :
-                        app.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
-                        app.status === 'interview' ? 'bg-purple-500/20 text-purple-300' :
-                        'bg-blue-500/20 text-blue-300'
-                      }`}>
-                        {app.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
