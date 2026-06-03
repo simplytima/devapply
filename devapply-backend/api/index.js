@@ -6,7 +6,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['https://devapply-sooty.vercel.app', 'http://localhost:5173'],
+  origin: [
+    'https://devapply-alpha.vercel.app',  // Your frontend URL
+    'https://devapply-backend.vercel.app',
+    'http://localhost:5173'  // For local development
+  ],
   credentials: true
 }));
 app.use(express.json());
