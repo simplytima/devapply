@@ -1,19 +1,33 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+// Middleware
+app.use(cors({
+  origin: ['https://devapply-sooty.vercel.app', 'http://localhost:5173'],
+  credentials: true
+}));
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI);
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('MongoDB Error:', err));
+
+// Import routes (adjust paths as needed)
+const authRoutes = require('../routes/auth');
+const applicationRoutes = require('../routes/applications');
 
 // Routes
-app.use('/api/auth', require('../routes/auth'));
-app.use('/api/applications', require('../routes/applications'));
+app.use('/api/auth', authRoutes);
+app.use('/api/applications', applicationRoutes);
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Backend is running' });
+});
 
 // Export for Vercel
 module.exports = app;
