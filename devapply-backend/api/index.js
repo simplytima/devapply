@@ -6,7 +6,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: '*',
+  origin: ['https://devapply-alpha.vercel.app', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json());
@@ -16,7 +16,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('MongoDB Error:', err));
 
-// Import routes (adjust paths as needed)
+// Import routes
 const authRoutes = require('../routes/auth');
 const applicationRoutes = require('../routes/applications');
 
