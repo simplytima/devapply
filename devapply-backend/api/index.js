@@ -14,9 +14,9 @@ app.use(express.json());
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('MongoDB Error:', err));
+  .catch(err => console.error('MongoDB Error:', err.message));
 
-// Import routes
+// Import routes - use absolute paths from the root
 const authRoutes = require('../routes/auth');
 const applicationRoutes = require('../routes/applications');
 
@@ -29,5 +29,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });
 });
 
-// Export for Vercel
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'DevApply API is running' });
+});
+
 module.exports = app;
