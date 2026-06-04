@@ -2,13 +2,22 @@ const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-
-// Add these imports at the top
-const { Resend } = require('resend');
 const { v4: uuidv4 } = require('uuid');
 
-// Initialize Resend (add your API key to .env)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend only if API key exists
+let Resend = null;
+let resend = null;
+try {
+  Resend = require('resend').Resend;
+  if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_XXXXXXX') {
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('✅ Resend email service initialized');
+  } else {
+    console.log('⚠️ Resend API key not configured - email sending disabled');
+  }
+} catch (error) {
+  console.log('⚠️ Resend package not available - email sending disabled');
+}
 
 // Forgot Password - Request reset
 router.post('/forgot-password', async (req, res) => {
@@ -20,14 +29,13 @@ router.post('/forgot-password', async (req, res) => {
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      // For security, don't reveal that user doesn't exist
       return res.json({ message: 'If an account exists, you will receive a reset email.' });
     }
     
     // Generate reset token
     const resetToken = uuidv4();
     const resetExpires = new Date();
-    resetExpires.setHours(resetExpires.getHours() + 1); // 1 hour expiration
+    resetExpires.setHours(resetExpires.getHours() + 1);
     
     // Save to database
     user.resetPasswordToken = resetToken;
@@ -35,33 +43,45 @@ router.post('/forgot-password', async (req, res) => {
     await user.save();
     
     // Create reset URL
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://devapply-alpha.vercel.app';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
-    // Send email
-    await resend.emails.send({
-      from: 'DevApply <noreply@devapply.com>',
-      to: [email],
-      subject: 'Reset Your DevApply Password',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #8b5cf6, #a855f7); padding: 20px; text-align: center; border-radius: 12px 12px 0 0;">
-            <h1 style="color: white; margin: 0;">DevApply</h1>
-          </div>
-          <div style="background: #0f172a; padding: 30px; border-radius: 0 0 12px 12px; color: #e2e8f0;">
-            <h2 style="color: white; margin-top: 0;">Reset Your Password</h2>
-            <p>You requested to reset your password. Click the button below to create a new password:</p>
-            <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 20px 0;">Reset Password</a>
-            <p>This link will expire in <strong>1 hour</strong>.</p>
-            <p>If you didn't request this, please ignore this email.</p>
-            <hr style="border-color: #1e293b; margin: 20px 0;">
-            <p style="font-size: 12px; color: #64748b;">DevApply - Job Application Tracker</p>
-          </div>
-        </div>
-      `,
-    });
+    console.log('Reset URL:', resetUrl);
     
-    console.log('Reset email sent to:', email);
+    // Try to send email if Resend is configured
+    let emailSent = false;
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'DevApply <noreply@devapply.com>',
+          to: [email],
+          subject: 'Reset Your DevApply Password',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #8b5cf6, #a855f7); padding: 20px; text-align: center; border-radius: 12px 12px 0 0;">
+                <h1 style="color: white; margin: 0;">DevApply</h1>
+              </div>
+              <div style="background: #0f172a; padding: 30px; border-radius: 0 0 12px 12px; color: #e2e8f0;">
+                <h2 style="color: white; margin-top: 0;">Reset Your Password</h2>
+                <p>Click the button below to create a new password:</p>
+                <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 20px 0;">Reset Password</a>
+                <p>This link expires in <strong>1 hour</strong>.</p>
+              </div>
+            </div>
+          `,
+        });
+        emailSent = true;
+        console.log('Reset email sent to:', email);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
+    }
+    
+    // For debugging - log the reset URL (remove in production)
+    if (!emailSent) {
+      console.log('Email not sent. Reset URL:', resetUrl);
+    }
+    
     res.json({ message: 'If an account exists, you will receive a reset email.' });
     
   } catch (error) {
