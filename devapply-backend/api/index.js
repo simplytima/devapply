@@ -11,40 +11,40 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// MongoDB Connection with proper handling for serverless
-let cachedConnection = null;
+// MongoDB Connection - with better error handling
+let isConnected = false;
 
-async function connectToDatabase() {
-  if (cachedConnection) {
-    console.log('Using cached connection');
-    return cachedConnection;
+const connectDB = async () => {
+  if (isConnected) {
+    console.log('✅ Using existing database connection');
+    return;
   }
-
+  
   try {
-    console.log('Connecting to MongoDB...');
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    console.log('⏳ Connecting to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 30000, // Increase timeout
       socketTimeoutMS: 45000,
-      family: 4, // Use IPv4, skip trying IPv6
     });
-    
-    cachedConnection = conn;
-    console.log('✅ MongoDB Connected successfully');
-    return conn;
+    isConnected = true;
+    console.log('✅ MongoDB Connected');
   } catch (error) {
-    console.error('MongoDB Connection Error:', error.message);
+    console.error('❌ MongoDB Connection Error:', error.message);
     throw error;
   }
-}
+};
 
-// Connect to MongoDB before handling requests
+// Middleware to ensure DB connection before handling requests
 app.use(async (req, res, next) => {
   try {
-    await connectToDatabase();
+    await connectDB();
     next();
   } catch (error) {
-    console.error('Connection error:', error);
-    res.status(500).json({ error: 'Database connection failed' });
+    console.error('Database connection failed:', error.message);
+    res.status(500).json({ 
+      error: 'Database connection failed',
+      details: error.message 
+    });
   }
 });
 
@@ -57,8 +57,21 @@ app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Backend is running' });
+app.get('/api/health', async (req, res) => {
+  try {
+    await connectDB();
+    res.json({ 
+      status: 'OK', 
+      message: 'Backend is running',
+      database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'Error',
+      message: 'Database connection failed',
+      error: error.message
+    });
+  }
 });
 
 // Root endpoint
