@@ -91,11 +91,11 @@ const Login = () => {
               </div>
             </div>
 
-            {/* <div className="mt-1">
+            <div className="text-right mt-1">
               <Link to="/forgot-password" className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
                 Forgot password?
               </Link>
-            </div> */}
+            </div>
 
             <button
               type="submit"

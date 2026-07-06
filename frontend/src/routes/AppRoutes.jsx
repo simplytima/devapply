@@ -16,8 +16,8 @@ function AppRoutes() {
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-      {/* <Route path="/reset-password/:token" element={<ResetPassword />} /> */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* Protected routes with layout */}
       <Route element={
