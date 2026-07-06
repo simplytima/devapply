@@ -11,12 +11,44 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('MongoDB Error:', err.message));
+// MongoDB Connection with proper handling for serverless
+let cachedConnection = null;
 
-// Import routes - use absolute paths from the root
+async function connectToDatabase() {
+  if (cachedConnection) {
+    console.log('Using cached connection');
+    return cachedConnection;
+  }
+
+  try {
+    console.log('Connecting to MongoDB...');
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000, // Increase timeout
+      socketTimeoutMS: 45000,
+      family: 4, // Use IPv4, skip trying IPv6
+    });
+    
+    cachedConnection = conn;
+    console.log('✅ MongoDB Connected successfully');
+    return conn;
+  } catch (error) {
+    console.error('MongoDB Connection Error:', error.message);
+    throw error;
+  }
+}
+
+// Connect to MongoDB before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    console.error('Connection error:', error);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
+
+// Import routes
 const authRoutes = require('../routes/auth');
 const applicationRoutes = require('../routes/applications');
 
