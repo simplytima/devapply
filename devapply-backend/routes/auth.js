@@ -84,74 +84,56 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD - Simplified (no email sending yet)
+// FORGOT PASSWORD - Detailed Error Logging
 router.post('/forgot-password', async (req, res) => {
   try {
+    console.log('1. Forgot password request received');
     const { email } = req.body;
+    console.log('2. Email:', email);
     
-    console.log('Password reset requested for:', email);
+    if (!email) {
+      console.log('3. No email provided');
+      return res.status(400).json({ error: 'Email is required' });
+    }
     
+    console.log('4. Searching for user...');
     const user = await User.findOne({ email });
+    console.log('5. User found:', user ? 'Yes' : 'No');
+    
     if (!user) {
       return res.json({ message: 'If an account exists, you will receive a reset email.' });
     }
     
-    // Generate simple token (using uuid)
+    console.log('6. Generating reset token...');
     const { v4: uuidv4 } = require('uuid');
     const resetToken = uuidv4();
+    console.log('7. Token generated:', resetToken);
+    
     const resetExpires = new Date();
     resetExpires.setHours(resetExpires.getHours() + 1);
     
+    console.log('8. Saving to database...');
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = resetExpires;
     await user.save();
+    console.log('9. User saved');
     
     const frontendUrl = process.env.FRONTEND_URL || 'https://devapply-alpha.vercel.app';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
-    
-    console.log('Reset URL (for testing):', resetUrl);
+    console.log('10. Reset URL created:', resetUrl);
     
     res.json({ 
       message: 'If an account exists, you will receive a reset email.',
-      // Remove this in production - only for testing
-      resetUrl: resetUrl 
+      resetUrl: resetUrl
     });
     
   } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({ error: 'Failed to process request' });
-  }
-});
-
-// RESET PASSWORD
-router.post('/reset-password/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { password } = req.body;
-    
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() },
+    console.error('Detailed forgot password error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Failed to process request',
+      details: error.message 
     });
-    
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
-    }
-    
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    user.password = hashedPassword;
-    user.resetPasswordToken = '';
-    user.resetPasswordExpires = null;
-    await user.save();
-    
-    console.log('Password reset successfully for:', user.email);
-    res.json({ message: 'Password has been reset successfully. You can now login.' });
-    
-  } catch (error) {
-    console.error('Reset password error:', error);
-    res.status(500).json({ error: 'Failed to reset password' });
   }
 });
 
