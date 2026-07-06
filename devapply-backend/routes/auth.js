@@ -84,4 +84,75 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// FORGOT PASSWORD - Simplified (no email sending yet)
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    console.log('Password reset requested for:', email);
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ message: 'If an account exists, you will receive a reset email.' });
+    }
+    
+    // Generate simple token (using uuid)
+    const { v4: uuidv4 } = require('uuid');
+    const resetToken = uuidv4();
+    const resetExpires = new Date();
+    resetExpires.setHours(resetExpires.getHours() + 1);
+    
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetExpires;
+    await user.save();
+    
+    const frontendUrl = process.env.FRONTEND_URL || 'https://devapply-alpha.vercel.app';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+    
+    console.log('Reset URL (for testing):', resetUrl);
+    
+    res.json({ 
+      message: 'If an account exists, you will receive a reset email.',
+      // Remove this in production - only for testing
+      resetUrl: resetUrl 
+    });
+    
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
+// RESET PASSWORD
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+    
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    user.password = hashedPassword;
+    user.resetPasswordToken = '';
+    user.resetPasswordExpires = null;
+    await user.save();
+    
+    console.log('Password reset successfully for:', user.email);
+    res.json({ message: 'Password has been reset successfully. You can now login.' });
+    
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 module.exports = router;
