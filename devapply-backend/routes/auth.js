@@ -4,19 +4,22 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { v4: uuidv4 } = require('uuid');
 
-// Initialize Resend only if API key exists
-let Resend = null;
+// Initialize Resend safely
 let resend = null;
 try {
-  Resend = require('resend').Resend;
-  if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_XXXXXXX') {
-    resend = new Resend(process.env.RESEND_API_KEY);
+  // Try different import methods for Resend
+  const ResendModule = require('resend');
+  if (ResendModule && typeof ResendModule.Resend === 'function') {
+    resend = new ResendModule.Resend(process.env.RESEND_API_KEY);
     console.log('✅ Resend email service initialized');
+  } else if (ResendModule && typeof ResendModule.default === 'function') {
+    resend = new ResendModule.default(process.env.RESEND_API_KEY);
+    console.log('✅ Resend email service initialized (default)');
   } else {
-    console.log('⚠️ Resend API key not configured - email sending disabled');
+    console.log('⚠️ Resend module found but unable to initialize');
   }
 } catch (error) {
-  console.log('⚠️ Resend package not available - email sending disabled');
+  console.log('⚠️ Resend package not available - email sending disabled:', error.message);
 }
 
 // Forgot Password - Request reset
@@ -50,7 +53,7 @@ router.post('/forgot-password', async (req, res) => {
     
     // Try to send email if Resend is configured
     let emailSent = false;
-    if (resend) {
+    if (resend && process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_XXXXXXX') {
       try {
         await resend.emails.send({
           from: 'DevApply <noreply@devapply.com>',
@@ -77,7 +80,6 @@ router.post('/forgot-password', async (req, res) => {
       }
     }
     
-    // For debugging - log the reset URL (remove in production)
     if (!emailSent) {
       console.log('Email not sent. Reset URL:', resetUrl);
     }
