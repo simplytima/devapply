@@ -128,7 +128,7 @@ router.post('/forgot-password', async (req, res) => {
       const resend = new Resend(process.env.RESEND_API_KEY);
       
       await resend.emails.send({
-        from: 'DevApply <noreply@devapply.com>',
+        from: 'DevApply <onboarding@resend.dev>',
         to: [email],
         subject: 'Reset Your DevApply Password',
         html: `
