@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
+const emailjs = require('emailjs');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -60,7 +61,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD 
+// FORGOT PASSWORD - WITH EMAILJS
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -91,56 +92,26 @@ router.post('/forgot-password', async (req, res) => {
     
     console.log('Reset URL generated:', resetUrl);
     
-    // Send email using Resend 
+    // Send email using EmailJS
     try {
-      const { Resend } = require('resend');
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      
-      await resend.emails.send({
-        from: 'DevApply <onboarding@resend.dev>',  
-        to: [email],
-        subject: 'Reset Your DevApply Password',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0f172a; padding: 40px; border-radius: 12px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #8b5cf6; font-size: 28px; margin: 0;">DevApply</h1>
-              <p style="color: #94a3b8; font-size: 16px;">Job Application Tracker</p>
-            </div>
-            
-            <div style="background-color: #1e293b; padding: 30px; border-radius: 8px;">
-              <h2 style="color: #e2e8f0; margin-top: 0;">Reset Your Password</h2>
-              <p style="color: #cbd5e1; line-height: 1.6;">
-                You requested to reset your password. Click the button below to create a new password:
-              </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600;">
-                  Reset Password
-                </a>
-              </div>
-              
-              <p style="color: #94a3b8; font-size: 14px;">
-                This link will expire in <strong style="color: #e2e8f0;">1 hour</strong>.
-              </p>
-              <p style="color: #64748b; font-size: 14px; margin-top: 20px;">
-                If you didn't request this, please ignore this email.
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #1e293b;">
-              <p style="color: #475569; font-size: 12px;">
-                DevApply - Job Application Tracker
-              </p>
-            </div>
-          </div>
-        `,
+      // Create email client
+      const client = emailjs.client.init({
+        user: process.env.EMAILJS_PUBLIC_KEY,
+        service: process.env.EMAILJS_SERVICE_ID,
+        template: process.env.EMAILJS_TEMPLATE_ID
       });
       
-      console.log('✅ Reset email sent successfully to:', email);
+      await client.send({
+        to: email,
+        from: 'DevApply <noreply@devapply.com>',
+        subject: 'Reset Your DevApply Password',
+        'resetUrl': resetUrl
+      });
+      
+      console.log('✅ Reset email sent to:', email);
       
     } catch (emailError) {
       console.error('❌ Email sending failed:', emailError.message);
-      console.error('Full error:', emailError);
     }
     
     res.json({ 
