@@ -3,9 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
-const emailjs = require('emailjs');
 const axios = require('axios');
-
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -63,7 +61,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD - USING EMAILJS REST API
+// FORGOT PASSWORD
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -94,16 +92,15 @@ router.post('/forgot-password', async (req, res) => {
     
     console.log('Reset URL generated:', resetUrl);
     
-    // Send email using EmailJS REST API
+    // Send email using EmailJS REST API - FIXED PARAMETERS
     try {
       const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
         service_id: process.env.EMAILJS_SERVICE_ID,
         template_id: process.env.EMAILJS_TEMPLATE_ID,
         user_id: process.env.EMAILJS_PUBLIC_KEY,
         template_params: {
-          to_email: email,
-          resetUrl: resetUrl,
-          from: 'DevApply <noreply@devapply.com>',
+          email: email,           // Matches {{email}} in your template
+          resetUrl: resetUrl,     // Matches {{resetUrl}} in your template
           subject: 'Reset Your DevApply Password'
         }
       });
@@ -113,6 +110,7 @@ router.post('/forgot-password', async (req, res) => {
       
     } catch (emailError) {
       console.error('❌ Email sending failed:', emailError.response?.data || emailError.message);
+      // Don't fail the request - user doesn't need to know email failed
     }
     
     res.json({ 
