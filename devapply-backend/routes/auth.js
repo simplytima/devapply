@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
 const emailjs = require('emailjs');
+const axios = require('axios');
+
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -61,7 +63,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD - WITH EMAILJS
+// FORGOT PASSWORD - USING EMAILJS REST API
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -92,26 +94,25 @@ router.post('/forgot-password', async (req, res) => {
     
     console.log('Reset URL generated:', resetUrl);
     
-    // Send email using EmailJS
+    // Send email using EmailJS REST API
     try {
-      // Create email client
-      const client = emailjs.client.init({
-        user: process.env.EMAILJS_PUBLIC_KEY,
-        service: process.env.EMAILJS_SERVICE_ID,
-        template: process.env.EMAILJS_TEMPLATE_ID
-      });
-      
-      await client.send({
-        to: email,
-        from: 'DevApply <noreply@devapply.com>',
-        subject: 'Reset Your DevApply Password',
-        'resetUrl': resetUrl
+      const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email: email,
+          resetUrl: resetUrl,
+          from: 'DevApply <noreply@devapply.com>',
+          subject: 'Reset Your DevApply Password'
+        }
       });
       
       console.log('✅ Reset email sent to:', email);
+      console.log('EmailJS response:', response.data);
       
     } catch (emailError) {
-      console.error('❌ Email sending failed:', emailError.message);
+      console.error('❌ Email sending failed:', emailError.response?.data || emailError.message);
     }
     
     res.json({ 
