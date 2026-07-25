@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
+
+// Import emailjs-com correctly
 const emailjs = require('emailjs-com');
 
 // REGISTER
@@ -61,7 +63,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD - USING EMAILJS (SAME AS YOUR WORKING PROJECT)
+// FORGOT PASSWORD - FIXED VERSION
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -92,7 +94,7 @@ router.post('/forgot-password', async (req, res) => {
     
     console.log('Reset URL generated:', resetUrl);
     
-    // Send email using emailjs-com (SAME AS YOUR WORKING PROJECT)
+    // Send email using emailjs-com
     try {
       const serviceID = process.env.EMAILJS_SERVICE_ID;
       const templateID = process.env.EMAILJS_TEMPLATE_ID;
@@ -105,16 +107,17 @@ router.post('/forgot-password', async (req, res) => {
       };
       
       console.log('Sending email with:', { serviceID, templateID, userID });
-      console.log('Template params:', templateParams);
       
+      // Use emailjs.send() correctly
       const result = await emailjs.send(serviceID, templateID, templateParams, userID);
       
       console.log('✅ Reset email sent to:', email);
       console.log('EmailJS response:', result);
       
     } catch (emailError) {
-      console.error('❌ Email sending failed:', emailError);
-      console.error('Error details:', emailError.text || emailError.message);
+      console.error('❌ Email sending failed:');
+      console.error('Error:', emailError);
+      console.error('Error text:', emailError.text || 'No error text');
     }
     
     res.json({ 
