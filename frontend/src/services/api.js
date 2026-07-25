@@ -35,6 +35,8 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
 // Auth API
 export const registerUser = (userData) => apiRequest('/auth/register', 'POST', userData);
 export const loginUser = (userData) => apiRequest('/auth/login', 'POST', userData);
+export const forgotPassword = (email) => apiRequest('/auth/forgot-password', 'POST', { email });
+export const resetPassword = (token, password) => apiRequest(`/auth/reset-password/${token}`, 'POST', { password });
 
 // Applications API
 export const getApplications = () => apiRequest('/applications');
