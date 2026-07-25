@@ -5,7 +5,7 @@ const User = require('../models/User');
 const crypto = require('crypto');
 
 // Import emailjs-com correctly
-const emailjs = require('emailjs-com');
+const emailjs = require('@emailjs/nodejs');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -96,28 +96,27 @@ router.post('/forgot-password', async (req, res) => {
     
     // Send email using emailjs-com
     try {
-      const serviceID = process.env.EMAILJS_SERVICE_ID;
-      const templateID = process.env.EMAILJS_TEMPLATE_ID;
-      const userID = process.env.EMAILJS_PUBLIC_KEY;
-      
       const templateParams = {
-        email: email,
-        resetUrl: resetUrl,
-        subject: 'Reset Your DevApply Password'
+        to_email: email,
+        reset_url: resetUrl,
+        subject: 'Reset Your DevApply Password',
       };
-      
-      console.log('Sending email with:', { serviceID, templateID, userID });
-      
-      // Use emailjs.send() correctly
-      const result = await emailjs.send(serviceID, templateID, templateParams, userID);
-      
-      console.log('✅ Reset email sent to:', email);
-      console.log('EmailJS response:', result);
-      
+
+      const result = await emailjs.send(
+        process.env.EMAILJS_SERVICE_ID,
+        process.env.EMAILJS_TEMPLATE_ID,
+        templateParams,
+        {
+          publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        }
+      );
+
+      console.log('✅ Reset email sent successfully');
+      console.log(result);
+
     } catch (emailError) {
-      console.error('❌ Email sending failed:');
-      console.error('Error:', emailError);
-      console.error('Error text:', emailError.text || 'No error text');
+      console.error('❌ EmailJS error:', emailError);
+      throw new Error('Failed to send reset email');
     }
     
     res.json({ 
