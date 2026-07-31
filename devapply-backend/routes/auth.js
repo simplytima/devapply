@@ -3,9 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
-
-// Import emailjs-com correctly for CommonJS
-const emailjs = require('emailjs-com');
+const axios = require('axios');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -63,7 +61,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD
+// FORGOT PASSWORD - USING EMAILJS REST API WITH AXIOS
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -93,33 +91,42 @@ router.post('/forgot-password', async (req, res) => {
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
     console.log('Reset URL generated:', resetUrl);
+    console.log('EMAILJS_SERVICE_ID:', process.env.EMAILJS_SERVICE_ID);
+    console.log('EMAILJS_TEMPLATE_ID:', process.env.EMAILJS_TEMPLATE_ID);
+    console.log('EMAILJS_PUBLIC_KEY:', process.env.EMAILJS_PUBLIC_KEY);
     
-    // Send email using emailjs-com
+    // Send email using EmailJS REST API
     try {
-      const serviceID = process.env.EMAILJS_SERVICE_ID;
-      const templateID = process.env.EMAILJS_TEMPLATE_ID;
-      const userID = process.env.EMAILJS_PUBLIC_KEY;
-      
-      const templateParams = {
-        email: email,
-        resetUrl: resetUrl,
-        subject: 'Reset Your DevApply Password'
+      const requestBody = {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_PUBLIC_KEY,
+        template_params: {
+          email: email,
+          resetUrl: resetUrl,
+          subject: 'Reset Your DevApply Password'
+        }
       };
       
-      console.log('Service ID:', serviceID);
-      console.log('Template ID:', templateID);
-      console.log('User ID:', userID);
+      console.log('Request body:', JSON.stringify(requestBody, null, 2));
       
-      // Use emailjs.send() with callback or promise
-      const result = await emailjs.send(serviceID, templateID, templateParams, userID);
+      const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', requestBody, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
       console.log('✅ Reset email sent to:', email);
-      console.log('EmailJS response:', result);
+      console.log('EmailJS response:', response.data);
       
     } catch (emailError) {
       console.error('❌ Email sending failed:');
-      console.error('Error object:', emailError);
-      console.error('Error message:', emailError.text || emailError.message || 'Unknown error');
+      if (emailError.response) {
+        console.error('Status:', emailError.response.status);
+        console.error('Data:', emailError.response.data);
+      } else {
+        console.error('Error:', emailError.message);
+      }
     }
     
     res.json({ 
