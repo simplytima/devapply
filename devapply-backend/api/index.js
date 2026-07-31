@@ -79,4 +79,15 @@ app.get('/', (req, res) => {
   res.json({ message: 'DevApply API is running' });
 });
 
+// Test endpoint to check environment variables
+app.get('/api/test-env', (req, res) => {
+  res.json({
+    service_id: process.env.EMAILJS_SERVICE_ID || '❌ MISSING',
+    template_id: process.env.EMAILJS_TEMPLATE_ID || '❌ MISSING',
+    public_key: process.env.EMAILJS_PUBLIC_KEY ? '✅ SET' : '❌ MISSING',
+    private_key: process.env.EMAILJS_PRIVATE_KEY ? '✅ SET' : '❌ MISSING',
+    frontend_url: process.env.FRONTEND_URL || '❌ MISSING'
+  });
+});
+
 module.exports = app;
