@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { forgotPassword } from '../services/api';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -14,18 +15,7 @@ const ForgotPassword = () => {
     setError('');
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong');
-      }
-      
+      await forgotPassword(email);
       setSubmitted(true);
     } catch (err) {
       setError(err.message);
