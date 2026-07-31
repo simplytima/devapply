@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
 
-// Import emailjs-com correctly
-const emailjs = require('@emailjs/nodejs');
+// Import emailjs-com correctly for CommonJS
+const emailjs = require('emailjs-com');
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD - FIXED VERSION
+// FORGOT PASSWORD
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
@@ -96,27 +96,30 @@ router.post('/forgot-password', async (req, res) => {
     
     // Send email using emailjs-com
     try {
+      const serviceID = process.env.EMAILJS_SERVICE_ID;
+      const templateID = process.env.EMAILJS_TEMPLATE_ID;
+      const userID = process.env.EMAILJS_PUBLIC_KEY;
+      
       const templateParams = {
-        to_email: email,
-        reset_url: resetUrl,
-        subject: 'Reset Your DevApply Password',
+        email: email,
+        resetUrl: resetUrl,
+        subject: 'Reset Your DevApply Password'
       };
-
-      const result = await emailjs.send(
-        process.env.EMAILJS_SERVICE_ID,
-        process.env.EMAILJS_TEMPLATE_ID,
-        templateParams,
-        {
-          publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        }
-      );
-
-      console.log('✅ Reset email sent successfully');
-      console.log(result);
-
+      
+      console.log('Service ID:', serviceID);
+      console.log('Template ID:', templateID);
+      console.log('User ID:', userID);
+      
+      // Use emailjs.send() with callback or promise
+      const result = await emailjs.send(serviceID, templateID, templateParams, userID);
+      
+      console.log('✅ Reset email sent to:', email);
+      console.log('EmailJS response:', result);
+      
     } catch (emailError) {
-      console.error('❌ EmailJS error:', emailError);
-      throw new Error('Failed to send reset email');
+      console.error('❌ Email sending failed:');
+      console.error('Error object:', emailError);
+      console.error('Error message:', emailError.text || emailError.message || 'Unknown error');
     }
     
     res.json({ 
