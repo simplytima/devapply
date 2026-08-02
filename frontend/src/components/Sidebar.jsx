@@ -94,14 +94,14 @@ function Sidebar() {
 
   return (
     <>
-      {/* ✅ Desktop Sidebar - Always visible on large screens */}
+      {/* ✅ Desktop Sidebar - Fixed on left */}
       <aside className="hidden md:flex w-72 min-h-screen bg-slate-900 border-r border-slate-800 p-5 flex-col fixed left-0 top-0 bottom-0 z-40">
         <SidebarContent />
       </aside>
 
-      {/* ✅ Mobile - Only the hamburger icon is visible */}
+      {/* ✅ Mobile - Only hamburger icon visible */}
       <div className="md:hidden">
-        {/* Hamburger Menu Button - Fixed top-left */}
+        {/* Hamburger Menu Button */}
         <button
           onClick={() => setIsMobileOpen(true)}
           className="fixed top-4 left-4 z-50 bg-slate-800 p-2 rounded-lg text-white hover:bg-slate-700 transition-colors"
@@ -117,7 +117,7 @@ function Sidebar() {
           />
         )}
 
-        {/* Mobile Sidebar - Slides in from left */}
+        {/* Mobile Sidebar */}
         <div
           className={`fixed top-0 left-0 h-full w-80 bg-slate-900 border-r border-slate-800 p-5 z-50 transition-transform duration-300 ${
             isMobileOpen ? "translate-x-0" : "-translate-x-full"
@@ -131,11 +131,6 @@ function Sidebar() {
           </button>
           <SidebarContent />
         </div>
-      </div>
-
-      {/* ✅ Main content spacing - desktop has sidebar offset */}
-      <div className="md:ml-72 flex-1">
-        {/* This div handles the sidebar offset on desktop */}
       </div>
     </>
   )
