@@ -30,9 +30,9 @@ const ExportButton = ({ applications }) => {
   return (
     <button
       onClick={exportToCSV}
-      className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-sm md:text-base"
+      className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-sm"
     >
-      <Download size={16} className="md:size-18" />
+      <Download size={16} />  {/* ← Changed from 18 to 16 */}
       <span>Export CSV</span>
     </button>
   );
