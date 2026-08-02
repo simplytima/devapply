@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useApplications } from '../context/ApplicationContext';
 import ApplicationTable from '../components/ApplicationTable';
@@ -42,11 +41,11 @@ const Applications = () => {
   };
 
   return (
-    <div className="min-h-screen text-white p-4 md:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="min-h-screen text-white p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Applications</h1>
-          <p className="text-sm md:text-base text-slate-400">Manage all your job applications</p>
+          <h1 className="text-3xl font-bold">Applications</h1>
+          <p className="text-slate-400 mt-1">Manage all your job applications</p>
         </div>
         <ExportButton applications={applications} />
       </div>

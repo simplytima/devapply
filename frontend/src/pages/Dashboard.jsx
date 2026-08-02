@@ -93,17 +93,17 @@ const Dashboard = () => {
   const maxActivity = Math.max(...weeklyActivity, 1);
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white">
+    <div className="min-h-screen bg-[#020817] text-white p-6">
       {/* Header */}
-      <div className="mb-4 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
-        <p className="text-sm md:text-base text-slate-400 mt-1">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-slate-400 mt-1">
           Track your job applications and interviews
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+      {/* Stats Cards - Original grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {statCards.map((item, index) => (
           <StatCard
             key={index}
@@ -117,12 +117,12 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 mt-4 md:mt-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
         
         {/* Recent Applications */}
-        <div className="xl:col-span-2 bg-[#0f172a] border border-slate-800 rounded-2xl p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-lg md:text-xl font-semibold">
+        <div className="xl:col-span-2 bg-[#0f172a] border border-slate-800 rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">
               Recent Applications
             </h2>
             <button 
@@ -133,9 +133,9 @@ const Dashboard = () => {
             </button>
           </div>
 
-          <div className="space-y-3 md:space-y-4">
+          <div className="space-y-4">
             {recentApplications.length === 0 ? (
-              <div className="text-center py-6 md:py-8 text-sm md:text-base text-slate-400">
+              <div className="text-center py-8 text-slate-400">
                 No applications yet. Click the 
                 <button 
                   onClick={() => navigate('/applications')}
@@ -149,17 +149,17 @@ const Dashboard = () => {
               recentApplications.map((job) => (
                 <div
                   key={job._id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-[#020817] border border-slate-800 rounded-xl px-3 md:px-4 py-3 md:py-4 hover:border-violet-500/40 transition-all gap-2 sm:gap-0"
+                  className="flex items-center justify-between bg-[#020817] border border-slate-800 rounded-xl px-4 py-4 hover:border-violet-500/40 transition-all"
                 >
                   <div>
-                    <h3 className="font-medium text-sm md:text-base">
+                    <h3 className="font-medium">
                       {capitalizeWords(job.position)} - {capitalizeWords(job.company)}
                     </h3>
-                    <p className="text-xs md:text-sm text-slate-400">
+                    <p className="text-sm text-slate-400">
                       Applied on {job.date}
                     </p>
                   </div>
-                  <span className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)} self-start sm:self-center`}>
+                  <span className={`px-3 py-1 rounded-full text-xs ${getStatusColor(job.status)}`}>
                     {getStatusLabel(job.status)}
                   </span>
                 </div>
@@ -169,12 +169,12 @@ const Dashboard = () => {
         </div>
 
         {/* Analytics Preview with Chart */}
-        <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">
+        <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-6">
+          <h2 className="text-xl font-semibold mb-6">
             Weekly Activity
           </h2>
 
-          <div className="flex items-end justify-between h-40 md:h-56 gap-2 md:gap-3">
+          <div className="flex items-end justify-between h-56 gap-3">
             {weeklyActivity.map((height, index) => {
               const barHeight = maxActivity > 0 ? (height / maxActivity) * 100 : 0;
               return (
@@ -194,7 +194,7 @@ const Dashboard = () => {
             })}
           </div>
 
-          <div className="flex justify-between mt-3 md:mt-4 text-xs text-slate-500">
+          <div className="flex justify-between mt-4 text-xs text-slate-500">
             <span>Mon</span>
             <span>Tue</span>
             <span>Wed</span>
@@ -204,16 +204,17 @@ const Dashboard = () => {
             <span>Sun</span>
           </div>
 
-          <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-slate-800">
+          {/* Summary Stats */}
+          <div className="mt-6 pt-6 border-t border-slate-800">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-violet-400">
+                <p className="text-2xl font-bold text-violet-400">
                   {stats.total}
                 </p>
                 <p className="text-xs text-slate-400">Total Applications</p>
               </div>
               <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-emerald-400">
+                <p className="text-2xl font-bold text-emerald-400">
                   {stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0}%
                 </p>
                 <p className="text-xs text-slate-400">Success Rate</p>

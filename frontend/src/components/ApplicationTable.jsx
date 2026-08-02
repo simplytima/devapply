@@ -64,7 +64,7 @@ const ApplicationTable = ({ applications, onEdit, onDelete }) => {
         </div>
       </div>
 
-      {/* Table - Scrollable on Mobile */}
+      {/* Table */}
       <div className="overflow-x-auto -mx-4 md:mx-0">
         <div className="min-w-full inline-block align-middle px-4 md:px-0">
           <div className="overflow-hidden rounded-xl border border-slate-800">
@@ -118,20 +118,20 @@ const ApplicationTable = ({ applications, onEdit, onDelete }) => {
                               rel="noopener noreferrer"
                               className="p-1 text-slate-400 hover:text-white transition-colors"
                             >
-                              <ExternalLink size={16} className="md:size-18" />
+                              <ExternalLink size={16} />
                             </a>
                           )}
                           <button
                             onClick={() => onEdit(app)}
                             className="p-1 text-slate-400 hover:text-blue-400 transition-colors"
                           >
-                            <Edit2 size={16} className="md:size-18" />
+                            <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => onDelete(app._id)}
                             className="p-1 text-slate-400 hover:text-red-400 transition-colors"
                           >
-                            <Trash2 size={16} className="md:size-18" />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
