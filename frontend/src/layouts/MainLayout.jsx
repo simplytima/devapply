@@ -3,16 +3,13 @@ import { Outlet } from "react-router-dom"
 
 function MainLayout() {
   return (
-    <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
-      
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-slate-950 text-white">
       <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <Outlet />
-      </div>
-
+      <main className="flex-1 overflow-y-auto">
+        <div className="mt-14 md:mt-0">
+          <Outlet />
+        </div>
+      </main>
     </div>
   )
 }

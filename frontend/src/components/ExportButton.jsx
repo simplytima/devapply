@@ -2,7 +2,6 @@ import { Download } from 'lucide-react';
 
 const ExportButton = ({ applications }) => {
   const exportToCSV = () => {
-    // Prepare data
     const headers = ['Company', 'Position', 'Status', 'Date', 'Link'];
     const csvData = applications.map(app => [
       app.company,
@@ -12,13 +11,11 @@ const ExportButton = ({ applications }) => {
       app.link
     ]);
     
-    // Create CSV content
     const csvContent = [
       headers.join(','),
       ...csvData.map(row => row.map(cell => `"${cell || ''}"`).join(','))
     ].join('\n');
     
-    // Download file
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -33,9 +30,9 @@ const ExportButton = ({ applications }) => {
   return (
     <button
       onClick={exportToCSV}
-      className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+      className="flex items-center gap-2 px-3 md:px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors text-sm md:text-base"
     >
-      <Download size={18} />
+      <Download size={16} className="md:size-18" />
       <span>Export CSV</span>
     </button>
   );

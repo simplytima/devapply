@@ -33,7 +33,7 @@ const Applications = () => {
 
   const handleSubmit = (data) => {
     if (editingApp) {
-      updateApplication(editingApp.id, data);
+      updateApplication(editingApp._id, data);
     } else {
       addApplication(data);
     }
@@ -41,24 +41,16 @@ const Applications = () => {
   };
 
   return (
-    <div className="text-white p-6">
-      {/* Header with Export */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="min-h-screen text-white p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Applications</h1>
-          <p className="text-slate-400 mt-1">
-            Manage all your job applications in one place
-          </p>
+          <h1 className="text-2xl md:text-3xl font-bold">Applications</h1>
+          <p className="text-sm md:text-base text-slate-400">Manage all your job applications</p>
         </div>
         <ExportButton applications={applications} />
       </div>
 
-      {/* Applications Table */}
-      <ApplicationTable
-        applications={applications}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <ApplicationTable applications={applications} onEdit={handleEdit} onDelete={handleDelete} />
 
       {/* Floating Action Button */}
       <FloatingActionButton onClick={() => {

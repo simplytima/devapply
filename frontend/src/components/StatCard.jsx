@@ -2,26 +2,22 @@ const StatCard = ({ title, value, icon, color, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className="relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0f172a] p-5 hover:border-violet-500/40 transition-all duration-300 cursor-pointer group"
+      className="relative overflow-hidden rounded-xl md:rounded-2xl border border-slate-800 bg-[#0f172a] p-3 md:p-5 hover:border-violet-500/40 transition-all duration-300 cursor-pointer group"
     >
       <div
-        className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${color} opacity-20 blur-3xl group-hover:opacity-30 transition-opacity`}
+        className={`absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br ${color} opacity-20 blur-3xl group-hover:opacity-30 transition-opacity`}
       />
-      
       <div className="relative z-10 flex items-center justify-between">
         <div>
-          <p className="text-slate-400 text-sm mb-2">{title}</p>
-          <h2 className="text-3xl font-bold">{value}</h2>
+          <p className="text-xs md:text-sm text-slate-400 mb-0.5 md:mb-2">{title}</p>
+          <h2 className="text-xl md:text-3xl font-bold">{value}</h2>
         </div>
-        
-        <div
-          className={`bg-gradient-to-br ${color} p-3 rounded-xl shadow-lg`}
-        >
+        <div className={`bg-gradient-to-br ${color} p-2 md:p-3 rounded-lg md:rounded-xl shadow-lg`}>
           {icon}
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default StatCard;
+export default StatCard
