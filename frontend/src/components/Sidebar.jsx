@@ -6,14 +6,12 @@ import {
   FiFileText,
   FiBarChart2,
   FiSettings,
-  FiChevronDown,
   FiLogOut,
   FiMenu,
   FiX
 } from "react-icons/fi"
 
 function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { logout, user } = useAuth()
   const navigate = useNavigate()
@@ -29,7 +27,6 @@ function Sidebar() {
     navigate('/login')
   }
 
-  // Mobile sidebar content
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -97,40 +94,48 @@ function Sidebar() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-72 min-h-screen bg-slate-900 border-r border-slate-800 p-5 flex-col">
+      {/* ✅ Desktop Sidebar - Always visible on large screens */}
+      <aside className="hidden md:flex w-72 min-h-screen bg-slate-900 border-r border-slate-800 p-5 flex-col fixed left-0 top-0 bottom-0 z-40">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Hamburger Menu Button */}
-      <button
-        onClick={() => setIsMobileOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-slate-800 p-2 rounded-lg text-white hover:bg-slate-700 transition-colors"
-      >
-        <FiMenu size={24} />
-      </button>
-
-      {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/70 z-40 md:hidden"
-          onClick={() => setIsMobileOpen(false)}
-        />
-      )}
-
-      {/* Mobile Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full w-80 bg-slate-900 border-r border-slate-800 p-5 z-50 transition-transform duration-300 md:hidden ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+      {/* ✅ Mobile - Only the hamburger icon is visible */}
+      <div className="md:hidden">
+        {/* Hamburger Menu Button - Fixed top-left */}
         <button
-          onClick={() => setIsMobileOpen(false)}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          onClick={() => setIsMobileOpen(true)}
+          className="fixed top-4 left-4 z-50 bg-slate-800 p-2 rounded-lg text-white hover:bg-slate-700 transition-colors"
         >
-          <FiX size={24} />
+          <FiMenu size={24} />
         </button>
-        <SidebarContent />
+
+        {/* Overlay */}
+        {isMobileOpen && (
+          <div
+            className="fixed inset-0 bg-black/70 z-40"
+            onClick={() => setIsMobileOpen(false)}
+          />
+        )}
+
+        {/* Mobile Sidebar - Slides in from left */}
+        <div
+          className={`fixed top-0 left-0 h-full w-80 bg-slate-900 border-r border-slate-800 p-5 z-50 transition-transform duration-300 ${
+            isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          >
+            <FiX size={24} />
+          </button>
+          <SidebarContent />
+        </div>
+      </div>
+
+      {/* ✅ Main content spacing - desktop has sidebar offset */}
+      <div className="md:ml-72 flex-1">
+        {/* This div handles the sidebar offset on desktop */}
       </div>
     </>
   )
