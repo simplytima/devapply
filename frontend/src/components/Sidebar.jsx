@@ -94,12 +94,12 @@ function Sidebar() {
 
   return (
     <>
-      {/* ✅ Desktop Sidebar - Fixed on left */}
+      {/* ✅ DESKTOP: Fixed sidebar - visible on md and up */}
       <aside className="hidden md:flex w-72 min-h-screen bg-slate-900 border-r border-slate-800 p-5 flex-col fixed left-0 top-0 bottom-0 z-40">
         <SidebarContent />
       </aside>
 
-      {/* ✅ Mobile - Only hamburger icon visible */}
+      {/* ✅ MOBILE: Hamburger menu - visible only on small screens */}
       <div className="md:hidden">
         {/* Hamburger Menu Button */}
         <button
@@ -132,6 +132,9 @@ function Sidebar() {
           <SidebarContent />
         </div>
       </div>
+
+      {/* ✅ Spacer div to offset content on desktop only */}
+      <div className="hidden md:block w-72 flex-shrink-0" />
     </>
   )
 }

@@ -93,7 +93,7 @@ const Dashboard = () => {
   const maxActivity = Math.max(...weeklyActivity, 1);
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white p-4 md:p-6">
+    <div className="min-h-screen bg-[#020817] text-white">
       {/* Header */}
       <div className="mb-4 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
